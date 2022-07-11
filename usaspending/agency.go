@@ -29,6 +29,15 @@ type DefCode struct {
 	Disaster  *string `json:"disaster"`
 }
 
+type AgencyAwards struct {
+	FiscalYear       *int          `json:"fiscal_year"`
+	LatestActionDate *string       `json:"latest_action_date"`
+	ToptierCode      *string       `json:"toptier_code"`
+	TransactionCount *int          `json:"transaction_count"`
+	Obligations      *float64      `json:"obligations"`
+	Messages         []interface{} `json:"messages"`
+}
+
 // GetAgency returns the agency with the given ID.
 func (ussapi *USASpendingClient) GetAgency(id string) (*Agency, error) {
 	var agency *Agency
@@ -45,4 +54,21 @@ func (ussapi *USASpendingClient) GetAgency(id string) (*Agency, error) {
 	}
 
 	return agency, nil
+}
+
+func (ussapi *USASpendingClient) GetAgencyAwards(id string) (*AgencyAwards, error) {
+	var agencyAwards *AgencyAwards
+	url := fmt.Sprintf("%s/%s/%s/%s", USASpendingBaseURL, "agency", id, "awards")
+
+	resp, err := ussapi.httpClient.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("httpget: %w", err)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&agencyAwards)
+	if err != nil {
+		return nil, fmt.Errorf("jsondecoder: %w", err)
+	}
+
+	return agencyAwards, nil
 }
